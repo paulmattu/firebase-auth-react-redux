@@ -9,24 +9,34 @@ import { Provider } from "react-redux";
 import { createStore, applyMiddleware, compose } from "redux";
 import reduxThunk from "redux-thunk";
 import reducers from "./store/reducers";
+import { ReactReduxFirebaseProvider } from "react-redux-firebase";
 
-// ENHANCING STORE WITH FIREBASE
-import { reactReduxFirebase } from "react-redux-firebase";
 import firebase from "./services/firebase";
-const createStoreWithFirebase = compose(reactReduxFirebase(firebase))(
-  createStore
-);
-const store = createStoreWithFirebase(
+
+const composeEnhancer = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+
+const store = createStore(
   reducers,
   {},
-  applyMiddleware(reduxThunk)
+  composeEnhancer(applyMiddleware(reduxThunk))
 );
+
+const rrfConfig = {
+};
+
+const rrfProps = {
+  firebase,
+  config: rrfConfig,
+  dispatch: store.dispatch,
+};
 
 ReactDOM.render(
   <Provider store={store}>
-    <Router>
-      <App />
-    </Router>
+    <ReactReduxFirebaseProvider {...rrfProps}>
+      <Router>
+        <App />
+      </Router>
+    </ReactReduxFirebaseProvider>
   </Provider>,
   document.getElementById("root")
 );
