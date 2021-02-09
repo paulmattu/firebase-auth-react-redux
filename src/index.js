@@ -12,6 +12,11 @@ import reducers from "./store/reducers";
 import { ReactReduxFirebaseProvider } from "react-redux-firebase";
 
 import firebase from "./services/firebase";
+import "firebase/firestore";
+
+
+// Initialize Firestore
+firebase.firestore();
 
 const composeEnhancer = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
@@ -22,6 +27,8 @@ const store = createStore(
 );
 
 const rrfConfig = {
+  userProfile: "users",
+  useFirestoreForProfile: true,
 };
 
 const rrfProps = {

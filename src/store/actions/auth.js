@@ -7,38 +7,43 @@ import {
   SIGNOUT_SUCCESS,
   SIGNOUT_ERROR,
   RESET_SUCCESS,
-  RESET_ERROR
+  RESET_ERROR,
 } from "./actionTypes";
 import { beginApiCall, apiCallError } from "./apiStatus";
 import firebase from "../../services/firebase";
 
 // Signing up with Firebase
-export const signup = (email, password) => async dispatch => {
+export const signup = (email, password) => async (dispatch) => {
   try {
     dispatch(beginApiCall());
     firebase
-      .auth()
-      .createUserWithEmailAndPassword(email, password)
-      .then(dataBeforeEmail => {
-        firebase.auth().onAuthStateChanged(function(user) {
+      .createUser(
+        { email, password },
+        {
+          email: email,
+          subscription: false,
+        }
+      )
+      .then((dataBeforeEmail) => {
+        firebase.auth().onAuthStateChanged(function (user) {
           user.sendEmailVerification();
         });
       })
-      .then(dataAfterEmail => {
-        firebase.auth().onAuthStateChanged(function(user) {
+      .then((dataAfterEmail) => {
+        firebase.auth().onAuthStateChanged(function (user) {
           if (user) {
             // Sign up successful
             dispatch({
               type: SIGNUP_SUCCESS,
               payload:
-                "Your account was successfully created! Now you need to verify your e-mail address, please go check your inbox."
+                "Your account was successfully created! Now you need to verify your e-mail address, please go check your inbox.",
             });
           } else {
             // Signup failed
             dispatch({
               type: SIGNUP_ERROR,
               payload:
-                "Something went wrong, we couldn't create your account. Please try again."
+                "Something went wrong, we couldn't create your account. Please try again.",
             });
           }
         });
@@ -48,7 +53,7 @@ export const signup = (email, password) => async dispatch => {
         dispatch({
           type: SIGNUP_ERROR,
           payload:
-            "Something went wrong, we couldn't create your account. Please try again."
+            "Something went wrong, we couldn't create your account. Please try again.",
         });
       });
   } catch (err) {
@@ -56,19 +61,19 @@ export const signup = (email, password) => async dispatch => {
     dispatch({
       type: SIGNUP_ERROR,
       payload:
-        "Something went wrong, we couldn't create your account. Please try again."
+        "Something went wrong, we couldn't create your account. Please try again.",
     });
   }
 };
 
 // Signing in with Firebase
-export const signin = (email, password, callback) => async dispatch => {
+export const signin = (email, password, callback) => async (dispatch) => {
   try {
     dispatch(beginApiCall());
     firebase
       .auth()
       .signInWithEmailAndPassword(email, password)
-      .then(data => {
+      .then((data) => {
         if (data.user.emailVerified) {
           console.log("IF", data.user.emailVerified);
           dispatch({ type: SIGNIN_SUCCESS });
@@ -77,7 +82,7 @@ export const signin = (email, password, callback) => async dispatch => {
           console.log("ELSE", data.user.emailVerified);
           dispatch({
             type: EMAIL_NOT_VERIFIED,
-            payload: "You haven't verified your e-mail address."
+            payload: "You haven't verified your e-mail address.",
           });
         }
       })
@@ -85,7 +90,7 @@ export const signin = (email, password, callback) => async dispatch => {
         dispatch(apiCallError());
         dispatch({
           type: SIGNIN_ERROR,
-          payload: "Invalid login credentials"
+          payload: "Invalid login credentials",
         });
       });
   } catch (err) {
@@ -95,7 +100,7 @@ export const signin = (email, password, callback) => async dispatch => {
 };
 
 // Signing out with Firebase
-export const signout = () => async dispatch => {
+export const signout = () => async (dispatch) => {
   try {
     dispatch(beginApiCall());
     firebase
@@ -108,20 +113,20 @@ export const signout = () => async dispatch => {
         dispatch(apiCallError());
         dispatch({
           type: SIGNOUT_ERROR,
-          payload: "Error, we were not able to log you out. Please try again."
+          payload: "Error, we were not able to log you out. Please try again.",
         });
       });
   } catch (err) {
     dispatch(apiCallError());
     dispatch({
       type: SIGNOUT_ERROR,
-      payload: "Error, we were not able to log you out. Please try again."
+      payload: "Error, we were not able to log you out. Please try again.",
     });
   }
 };
 
 // Reset password with Firebase
-export const resetPassword = email => async dispatch => {
+export const resetPassword = (email) => async (dispatch) => {
   try {
     dispatch(beginApiCall());
     firebase
@@ -131,7 +136,7 @@ export const resetPassword = email => async dispatch => {
         dispatch({
           type: RESET_SUCCESS,
           payload:
-            "Check your inbox. We've sent you a secured reset link by e-mail."
+            "Check your inbox. We've sent you a secured reset link by e-mail.",
         })
       )
       .catch(() => {
@@ -139,7 +144,7 @@ export const resetPassword = email => async dispatch => {
         dispatch({
           type: RESET_ERROR,
           payload:
-            "Oops, something went wrong we couldn't send you the e-mail. Try again and if the error persists, contact admin."
+            "Oops, something went wrong we couldn't send you the e-mail. Try again and if the error persists, contact admin.",
         });
       });
   } catch (err) {
